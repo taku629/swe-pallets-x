@@ -102,6 +102,20 @@ def get_dep_names(repo, base):
     )
 
 
+def to_iso(date_str):
+    """Normalize git-log / ISO dates to ISO 8601 for era pinning."""
+    from datetime import datetime
+    s = (date_str or "").strip()
+    for fmt in (None, "%a %b %d %H:%M:%S %Y %z", "%Y-%m-%d %H:%M:%S %z"):
+        try:
+            dt = datetime.fromisoformat(s.replace("Z", "+00:00")) \
+                if fmt is None else datetime.strptime(s, fmt)
+            return dt.isoformat()
+        except ValueError:
+            continue
+    return s
+
+
 def era_constraints(repo, base, date, work, extra=None):
     """Pin deps to latest release before the commit date; returns file path."""
     deps = get_dep_names(repo, base) + list(extra or [])
@@ -151,23 +165,36 @@ def prep_instance(rec, repo, py, work):
     try:
         # dedicated venv per instance (parallel-safe), era-matched python
         venv = os.path.join(work, ".venv")
-        pyver = pick_python(rec.get("created_at") or rec["date"])
+        era = to_iso(rec.get("date") or rec.get("created_at"))
+        pyver = pick_python(era)
         code, out = run(["uv", "venv", "--python", pyver, venv], timeout=120)
         if code != 0:
             return None, None, f"venv({pyver}): {out[:300]}"
         # era-consistent deps: pin to releases before the commit date.
-        # pytest must be era-pinned too (old conftests break on new pytest).
-        cf = era_constraints(repo, base, rec.get("created_at") or rec["date"], work,
-                             extra=["pytest"])
+        # pytest must be era-pinned too (old conftests break on new pytest) —
+        # unless the repo under test IS pytest (self-hosting).
+        own = os.path.basename(os.path.abspath(repo)).lower().replace("-", "_")
+        self_pytest = own == "pytest"
+        cf = era_constraints(repo, base, era, work,
+                             extra=[] if self_pytest else ["pytest"])
         dep_args = ["--constraints", cf] if cf else []
+        # names era-pinning could not resolve to a pre-cutoff PyPI release
+        # (e.g. sympy's own isympy script) are unresolvable — drop them
+        resolved = set()
+        if cf:
+            for ln in open(cf):
+                resolved.add(ln.split("==")[0].strip().lower().replace("-", "_"))
         extra_deps = [d for d in get_dep_names(repo, base)
-                      if d.lower() not in ("flask",)]
+                      if d.lower() not in ("flask", own)
+                      and (not resolved
+                           or d.lower().replace("-", "_") in resolved)]
+        testrunner = [] if self_pytest else ["pytest"]
         code, out = uv_pip(
-            venv, ["-e", ".", "pytest", *extra_deps, *dep_args],
+            venv, ["-e", ".", *testrunner, *extra_deps, *dep_args],
             cwd=work, timeout=600)
         if code != 0:
             code, out = uv_pip(
-                venv, [".", "pytest", *extra_deps, *dep_args],
+                venv, [".", *testrunner, *extra_deps, *dep_args],
                 cwd=work, timeout=600)
             if code != 0:
                 return None, None, f"install: {out[-500:]}"

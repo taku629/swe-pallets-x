@@ -23,7 +23,7 @@ import time
 import urllib.request
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from verify import era_constraints, pick_python  # noqa: E402
+from verify import era_constraints, pick_python, to_iso  # noqa: E402
 
 OLLAMA = "http://localhost:11434"
 
@@ -205,13 +205,13 @@ class Tools:
 
 
 def setup_env(work, rec, envdir):
-    pyver = pick_python(rec.get("created_at", "2023"))
+    pyver = pick_python(to_iso(rec.get("fix_date") or rec.get("created_at", "2023")))
     venv = os.path.join(envdir, "venv")
     subprocess.run(["uv", "venv", "--python", pyver, venv],
                    capture_output=True, timeout=120)
     # deps from the extracted snapshot itself (era-pinned incl. pytest)
     deps = _deps_from_tree(work)
-    cutoff = rec.get("created_at") or "2023"
+    cutoff = to_iso(rec.get("fix_date") or rec.get("created_at") or "2023")
     cons_out = subprocess.run(
         [sys.executable,
          os.path.join(os.path.dirname(os.path.abspath(__file__)), "era_pin.py"),

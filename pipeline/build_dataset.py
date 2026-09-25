@@ -16,6 +16,13 @@ import tempfile
 MAX_PATCH_LINES = 200
 MAX_SRC_FILES = 6
 
+REPO_FULL = {
+    "click": "pallets/click", "flask": "pallets/flask",
+    "werkzeug": "pallets/werkzeug", "jinja2": "pallets/jinja2",
+    "itsdangerous": "pallets/itsdangerous", "markupsafe": "pallets/markupsafe",
+    "pytest": "pytest-dev/pytest", "sympy": "sympy/sympy",
+}
+
 
 def run(cmd, cwd=None):
     return subprocess.run(cmd, cwd=cwd, capture_output=True, text=True)
@@ -86,13 +93,21 @@ def main():
                 continue
             rec = {
                 "instance_id": inst,
-                "repo": r.get("full_repo", r["repo_short"]),
+                "repo": r.get("full_repo")
+                        or REPO_FULL.get(r["repo_short"], r["repo_short"]),
                 "base_commit": r["base_commit"],
+                "fix_commit": r.get("fix_commit", ""),
                 "problem_statement": problem_statement(r),
                 "hints_text": "",
                 "patch": r["patch"],
                 "test_patch": r["test_patch"],
                 "created_at": r.get("created_at", r["date"]),
+                "fix_date": r["date"],
+                "pr_number": r.get("pr_number"),
+                "test_files": r.get("test_files", []),
+                "n_src_files": len(r.get("src_files", [])),
+                "n_patch_lines": n_lines,
+                "n_test_files": len(r.get("test_files", [])),
             }
             tj.write(json.dumps(rec) + "\n")
             kept += 1
