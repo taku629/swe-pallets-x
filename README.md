@@ -5,10 +5,30 @@
 dataset format. Companion code for the Kaggle Paper Track writeup.
 
 - **Dataset**: <https://www.kaggle.com/datasets/takumuhata/swe-pallets-x>
-  (181 verified tasks → expanding to 3 additional ecosystems: pytest, sympy, pallets tools)
+  (**476 verified tasks** across 8 repositories — ~3.7× the competition's
+  129-task public training set)
 - **Verification demo notebook**:
   <https://www.kaggle.com/code/takumuhata/swe-pallets-x-dataset-tour-verification-demo>
 - **Paper**: [`paper.md`](paper.md)
+
+## Dataset composition
+
+| Repo | Tasks |
+|---|---|
+| pytest-dev/pytest | 132 |
+| sympy/sympy | 129 |
+| pallets/click | 109 |
+| pallets/werkzeug | 43 |
+| pallets/flask | 29 |
+| pallets/jinja2 | 29 |
+| pallets/markupsafe | 4 |
+| pallets/itsdangerous | 1 |
+| **Total** | **476** |
+
+Each task ships with: `problem_statement` (linked GitHub issue/PR or commit
+subject), `patch`, `test_patch`, frozen single-commit snapshot tarball,
+AST call/dependency graph (NetworkX node-link JSON), and 256-dim node
+embeddings (TF-IDF → TruncatedSVD).
 
 ## Pipeline
 
@@ -20,21 +40,26 @@ enrich.py    # GitHub API: fix commit -> PR -> linked issue
 diffs.py     # patch / test_patch extraction
 verify.py    # two-phase F2P/P2P execution check in era-pinned per-instance venvs
 build_dataset.py  # freeze snapshots, write tasks.jsonl
-graphs.py / embeddings.py / gen_graphs_all.py  # AST graphs + 256-dim embeddings
+graphs.py / embeddings.py / parallel_graphs.py  # AST graphs + 256-dim embeddings
 check_dataset.py  # integrity check (0 errors / 0 warnings required)
 agent_eval.py     # minimal SWE-agent harness for small local models (Ollama)
 analyze_eval.py   # resolve rates + failure taxonomy
 ```
 
+Verification is era-consistent (Python 3.10–3.13 by commit date, dependencies
+pinned to pre-commit PyPI releases, era-pinned pytest) and handles self-hosting
+repos (verifying pytest uses the repo itself as the runner).
+
 ## Results snapshot
 
-| Model | Resolved (181 tasks) |
+| Model | Resolved (181-task initial release) |
 |---|---|
 | Qwen2.5-Coder-7B | 4/181 (2.2%) |
 | Gemma3-4B | 1/181 (0.6%) |
+| Qwen2.5-Coder-7B (75-task expansion sample) | 1/75 (1.3%) |
 
-See `paper.md` for the full analysis (verification yields, failure taxonomy,
-±graph-tools ablation, harness-fidelity notes).
+See `paper.md` for the full analysis (per-repo verification yields, failure
+taxonomy, ±graph-tools ablation, harness-fidelity notes).
 
 ## License
 
