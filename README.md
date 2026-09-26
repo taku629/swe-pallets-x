@@ -58,6 +58,13 @@ repos (verifying pytest uses the repo itself as the runner).
 | Gemma3-4B | 1/181 (0.6%) |
 | Qwen2.5-Coder-7B (75-task expansion sample) | 1/75 (1.3%) |
 
+**Utility probes** (84 held-out tasks): statement→graph-node BM25 file
+localization reaches **69% recall@5 / 80% @10** (+4–5 pts from one-hop graph
+expansion). A QLoRA patch-SFT probe on Qwen2.5-Coder-1.5B is an honest
+negative — SFT improves diff syntax but *reduces* context-line fidelity vs
+era-frozen snapshots (0.61 vs 0.72 verbatim context match), a failure mode
+the dataset makes measurable. See `paper.md` §5.2.
+
 See `paper.md` for the full analysis (per-repo verification yields, failure
 taxonomy, ±graph-tools ablation, harness-fidelity notes).
 
