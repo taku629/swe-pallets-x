@@ -91,6 +91,14 @@ Across the 181-task initial release (all Click/Werkzeug/Flask tasks), Qwen2.5-Co
 
 **Harness-fidelity caution.** Our first harness iteration silently mis-evaluated — file tools rejected the `/workspace`-prefixed paths the prompt instructed, and `run_command` executed outside the task environment, so all `edit_file` calls failed and reproduction attempts hit import errors. This produced a deceptively low 2.8% resolve rate that reflected harness defects, not model capability — a reminder that small-model agent benchmarks are extremely sensitive to tool-interface fidelity. Verification infrastructure showed the same fragility at curation time: three of our four pipeline-level fixes (era-pin anchoring, self-hosting exclusion, unresolvable-dependency filtering) each recovered tens of percentage points of yield.
 
+## 5.2 Utility probes: localization retrieval and patch-SFT
+
+Beyond agent resolve rates, we probe whether the packaged assets are *usable*.
+
+**Fix localization from graph assets.** A flat BM25 ranker over graph-node text, queried only by the problem statement, already recovers a file containing the fix in 32% @1 / 55% @3 / 66% @5 / 75% @10 of 84 held-out tasks; a one-hop neighborhood boost from the call/dependency graph lifts recall at every k — to **37% @1, 60% @3, 69% @5, 80% @10**. The companion graphs thus provide a measurable retrieval lift for grounded editing even before any model sees the task.
+
+**Controlled SFT probe (an honest negative with a diagnostic).** We fine-tuned Qwen2.5-Coder-1.5B with QLoRA on 322 train tasks (oracle setting: statement + contents of the files the patch touches → unified diff) and evaluated strict `git apply` plus touched-test execution on 84 held-out tasks. The base model applies **6/84** diffs; the SFT model applies **1/84**; neither passes a task test. Generation-side analysis shows the SFT model's diffs are uniformly well-formed, but its *context-line fidelity* dropped — only 61% of context/deleted lines match the frozen snapshot verbatim vs 72% for the base model. Era-pinned snapshots expose that small models carry memory of *newer* upstream versions and hallucinate near-miss context; training on patch format alone cannot close that gap. The dataset makes this failure visible and quantifiable.
+
 ## 6. Limitations
 
 - Public-repo mining inherits maintainer conventions; issue↔PR linkage quality varies, and ~4% of tasks carry only commit-subject problem statements.
