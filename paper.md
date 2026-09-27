@@ -70,6 +70,8 @@ Of verification failures: P2P failures dominate (missing test deps, era-incompat
 | pallets/itsdangerous | 1 | <1% |
 | **Total** | **476** | |
 
+Median companion-graph size per task ranges from **96 nodes / 164 edges** (markupsafe) through **1.5–2.3k nodes** (pallets core) and **6.2k / 30.7k** (pytest) up to **38.7k nodes / 243k edges** (sympy) — a ~400× scale spread that makes retrieval and graph-traversal difficulty itself a benchmark axis.
+
 At 476 instances the set is ~3.7× the competition's 129-task public training set, and spans repositories ranging from small utility libraries to a 7,000-symbol scientific codebase — a difficulty axis absent from the original release.
 
 Median patch: 18 changed lines (mean 35, max 189). Median problem statement: 1,251 chars — sourced from the linked GitHub issue or PR body for 92% of tasks, and from the commit subject otherwise. Dates span 2016–2026. The set is disjoint from the competition's public training repositories (fastapi, rich, requests, httpx, among others). Overlap with the undisclosed hidden test set cannot be ruled out a priori; every instance is nevertheless independently derived and execution-verified, so the resource remains valid as training data and as a public held-out benchmark. The dataset is published at <https://www.kaggle.com/datasets/takumuhata/swe-pallets-x>, with pipeline source at <https://github.com/taku629/swe-pallets-x>.
@@ -100,7 +102,7 @@ The three baselines separate cleanly, and in distinct ways: DeepSeek-Coder consu
 
 Beyond agent resolve rates, we probe whether the packaged assets are *usable*.
 
-**Fix localization from graph assets.** A flat BM25 ranker over graph-node text, queried only by the problem statement, already recovers a file containing the fix in 32% @1 / 55% @3 / 66% @5 / 75% @10 of 84 held-out tasks; a one-hop neighborhood boost from the call/dependency graph lifts recall at every k — to **37% @1, 60% @3, 69% @5, 80% @10**. The companion graphs thus provide a measurable retrieval lift for grounded editing even before any model sees the task.
+**Fix localization from graph assets.** A flat BM25 ranker over graph-node text, queried only by the problem statement, already recovers a file containing the fix in 34% @1 / 58% @3 / 66% @5 / 73% @10 across **all 476 tasks**; a one-hop neighborhood boost from the call/dependency graph lifts recall at every k — to **37% @1, 62% @3, 69% @5, 76% @10**. The companion graphs thus provide a measurable retrieval lift for grounded editing even before any model sees the task.
 
 **Embedding quality probe.** As a sanity check on the 256-dim node embeddings, we measure same-file concentration of cosine nearest neighbors: across 120 sampled instances (297k nodes), a node's top-8 neighbors share its source file **28.1×** more often than the file's population share (median 28.9×; lift >1 in 100% of instances) — the shipped embeddings carry strong code-structure signal rather than being free-floating vectors.
 
