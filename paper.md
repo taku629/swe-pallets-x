@@ -88,9 +88,9 @@ Across the 181-task initial release (all Click/Werkzeug/Flask tasks), Qwen2.5-Co
 |---|---|---|---|
 | Qwen2.5-Coder-7B | 4/181 (2.2%) | 12.3 | patch-failed-tests (52) |
 | Gemma3-4B | 1/181 (0.6%) | 3.5 | empty-submit (148/181, 82%) |
-| DeepSeek-Coder-6.7B | 0/181 (0.0%) | 20.0 | unproductive loop (0 valid edits in 181 episodes) |
+| DeepSeek-Coder-6.7B | 0/181 (0.0%) | 20.0 | LLM timeout — see note |
 
-The three baselines separate cleanly, and in distinct ways: DeepSeek-Coder consumes all 20 steps yet never produces an applicable patch (0/181 `has_patch`), Gemma3 disengages almost immediately (mean 3.5 steps), while Qwen sustains exploration and emits patches in 31% of episodes. The benchmark thus discriminates not only resolve rate but *failure mode* — a useful axis for small-model agent research.
+The two *responsive* baselines separate cleanly: Gemma3 disengages almost immediately (mean 3.5 steps, 82% empty submits), while Qwen sustains exploration and emits patches in 31% of episodes. (DeepSeek-Coder-6.7B is reported for completeness but is not a capability datapoint: all 3,620 of its calls failed at the 300s per-call LLM timeout in our harness, so its episodes contain no model actions at all.) The benchmark thus discriminates not only resolve rate but *failure mode* — a useful axis for small-model agent research.
 
 **Failure taxonomy** (Qwen, from episode transcripts): patch-failed-tests 52, edits-failed-to-apply 50 (`edit_file` `old_string` mismatches), no-edit-attempted 40, empty-submit 35. The two small models fail for *different* reasons — Qwen engages the task (523 `edit_file` calls) but fumbles patch mechanics, while Gemma3 mostly never engages (mean 3.5 steps, 15 `read_file` calls across 181 episodes) — which is precisely the kind of per-model diagnostic a public extension set enables.
 
