@@ -11,6 +11,7 @@ Episode-level results behind paper §5. One JSON row per task episode:
 | qwen_graph_exp31.jsonl | Qwen + graph tools | 31-task extension subset |
 | gemma3_nograph_full.jsonl | Gemma3-4B | 181 |
 | gemma3_exp40.jsonl | Gemma3-4B | 31-task extension subset |
+| deepseek_nograph_full.jsonl | DeepSeek-6.7B | 181 (LLM timeouts — infra datapoint) |
 | loc476_dump.jsonl | localization probe | all 476, per-instance first-hit rank |
 
 Reproduce: `pipeline/agent_eval.py <task_dir> <ollama-model> --out out.jsonl`
