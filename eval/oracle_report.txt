@@ -1,0 +1,8 @@
+arm           n  patch  pass  steps
+nograph     476  163 34.2%   5  1.1% pass | steps  12.9
+graph       181   52 28.7%   3  1.7% pass | steps  13.2
+oracle      181   78 43.1%   3  1.7% pass | steps  12.8
+
+patch McNemar nograph-vs-oracle: 26/48 p=0.014
+pass  McNemar nograph-vs-oracle: 1/0 p=1.000
+oracle-only solves: []
