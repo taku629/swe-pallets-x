@@ -84,6 +84,17 @@ We run small open models through a minimal re-implementation of the competition 
 
 Across **all 476 tasks**, Qwen2.5-Coder-7B resolves **5/476 (1.05%)** while emitting a patch in 34% of episodes; on the 181-task pallets slice it resolves 4/181 (2.2%), and on the 295-task extension slice only 1/295 (0.3%) — the extension is *harder* than the original, not diluted by easy instances. Per-repository resolve rates stratify by codebase scale: Werkzeug 7.0%, Jinja2 3.4%, Click 0.9%, and **0% on pytest (132 tasks), SymPy (129), Flask (29), MarkupSafe (4), ItsDangerous (1)**. The failure shape on the large repos is distinctive: Qwen still emits patches on 40% of pytest tasks and 32% of SymPy tasks — and burns its full 20-step budget on SymPy (median 20 steps) — yet not a single patch passes, i.e. the model produces plausible-looking but ungrounded edits at scale. All five solved episodes finished in ≤8 steps — short-horizon tasks the model likely "recognized" rather than discovered. Gemma3-4B resolves **1/181 (0.6%)** on the pallets slice, disengaging almost immediately (mean 3.5 steps). Resolve rate also falls monotonically with patch size — 2.8% of tasks with <30-line reference patches, 1.6% at 30–120 lines, 0% beyond 120 — a usable difficulty gradient rather than a flat wall.
 
+| Repo (median graph size) | Tasks | Patch emitted | Resolved |
+|---|---|---|---|
+| markupsafe (96 nodes) | 4 | 50.0% | 0 |
+| itsdangerous (135) | 1 | 100% | 0 |
+| flask (1,542) | 29 | 34.5% | 0 |
+| click (1,598) | 109 | 28.4% | 1 (0.9%) |
+| jinja2 (1,758) | 29 | 34.5% | 1 (3.4%) |
+| werkzeug (2,310) | 43 | 34.9% | 3 (7.0%) |
+| pytest (6,248) | 132 | 40.2% | 0 |
+| **sympy (38,735)** | 129 | 31.8% | 0 |
+
 | Model | Resolved | Mean steps | Dominant failure mode |
 |---|---|---|---|
 | Qwen2.5-Coder-7B (all 476) | 5/476 (1.05%) | 12.9 | patch-failed-tests |
@@ -102,7 +113,7 @@ The two *responsive* baselines separate cleanly: Gemma3 disengages almost immedi
 
 Beyond agent resolve rates, we probe whether the packaged assets are *usable*.
 
-**Fix localization from graph assets.** A flat BM25 ranker over graph-node text, queried only by the problem statement, already recovers a file containing the fix in 34% @1 / 58% @3 / 66% @5 / 73% @10 across **all 476 tasks**; a one-hop neighborhood boost from the call/dependency graph lifts recall at every k — to **37% @1, 62% @3, 69% @5, 76% @10**. The lift concentrates exactly where retrieval is hard: on SymPy (the largest repo, 39k median nodes) flat recall@5 is only 34.9% and graph expansion adds **+7.8 pt**, and on pytest +4.5 pt, while small repos saturate (Click 88% @5) and gain nothing. Multi-file patches are paradoxically *easier* to localize than single-file ones (graph 74% vs 67% @5) — co-changed files reinforce each other's scores. The companion graphs thus provide a measurable, scale-dependent retrieval lift for grounded editing even before any model sees the task.
+**Fix localization from graph assets.** A flat BM25 ranker over graph-node text, queried only by the problem statement, already recovers a file containing the fix in 34% @1 / 58% @3 / 66% @5 / 73% @10 across **all 476 tasks**; a one-hop neighborhood boost from the call/dependency graph lifts recall at every k — to **37% @1, 62% @3, 69% @5, 76% @10**. The lift concentrates exactly where retrieval is hard: on SymPy (the largest repo, 39k median nodes) flat recall@5 is only 34.9% and graph expansion adds **+7.8 pt**, and on pytest +4.5 pt, while small repos saturate (Click 88% @5) and gain nothing. Multi-file patches are paradoxically *easier* to localize than single-file ones (graph 74% vs 67% @5) — co-changed files reinforce each other's scores. Cross-referencing with the agent runs is equally informative: localization success does *not* predict patch emission (34.8% on recall@5 hits vs 33.1% on misses), and four of the five solved tasks had their target file inside the top-5 anyway — retrieval is nearly solved at this scale while the binding constraint sits downstream in grounded patch construction. The companion graphs thus provide a measurable, scale-dependent retrieval lift for grounded editing even before any model sees the task.
 
 **Embedding quality probe.** As a sanity check on the 256-dim node embeddings, we measure same-file concentration of cosine nearest neighbors across **all 476 instances (1.15M nodes)**: a node's top-8 neighbors share its source file **27.1×** more often than the file's population share (median 28.7×; p10 11.5×, p90 53.3×; lift >1 in 100% of instances) — the shipped embeddings carry strong code-structure signal rather than being free-floating vectors.
 
