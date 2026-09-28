@@ -99,6 +99,7 @@ Across **all 476 tasks**, Qwen2.5-Coder-7B resolves **5/476 (1.05%)** while emit
 |---|---|---|---|
 | Qwen2.5-Coder-7B (all 476) | 5/476 (1.05%) | 12.9 | patch-failed-tests |
 | Gemma3-4B | 1/181 (0.6%) | 3.5 | empty-submit (148/181, 82%) |
+| Gemma3-4B (31-task extension sample) | 0/31 | 2.7 | disengagement (1 patch) |
 | DeepSeek-Coder-6.7B | 0/181 (0.0%) | 20.0 | LLM timeout — see note |
 
 The two *responsive* baselines separate cleanly: Gemma3 disengages almost immediately (mean 3.5 steps, 82% empty submits), while Qwen sustains exploration and emits patches in 31% of episodes. (DeepSeek-Coder-6.7B is reported for completeness but is not a capability datapoint: all 3,620 of its calls failed at the 300s per-call LLM timeout in our harness, so its episodes contain no model actions at all.) The benchmark thus discriminates not only resolve rate but *failure mode* — a useful axis for small-model agent research.
