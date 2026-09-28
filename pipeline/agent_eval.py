@@ -254,7 +254,12 @@ def _deps_from_tree(root):
     return sorted(deps)
 
 
-def evaluate(task_dir, model, rec, use_graph, max_steps, out_dir=None):
+def _patch_src_files(rec):
+    return sorted(set(re.findall(r"--- a/(\S+)", rec["patch"])))
+
+
+def evaluate(task_dir, model, rec, use_graph, max_steps, out_dir=None,
+             use_oracle=False):
     inst = rec["instance_id"]
     work = tempfile.mkdtemp(prefix=f"eval_{inst}_")
     envdir = tempfile.mkdtemp(prefix=f"env_{inst}_")
@@ -289,8 +294,13 @@ def evaluate(task_dir, model, rec, use_graph, max_steps, out_dir=None):
         tools = Tools(work, graph, emb,
                       pybin=os.path.join(envdir, "venv", "bin"))
 
+        user_msg = "ISSUE:\n" + rec["problem_statement"][:4000]
+        if use_oracle:
+            user_msg += ("\n\nORACLE HINT: the reference fix modifies "
+                         "exactly these files: " +
+                         ", ".join(_patch_src_files(rec)))
         msgs = [{"role": "system", "content": system_prompt(use_graph)},
-                {"role": "user", "content": "ISSUE:\n" + rec["problem_statement"][:4000]}]
+                {"role": "user", "content": user_msg}]
         t0 = time.time()
         steps = 0
         tool_hist = {}
@@ -359,6 +369,7 @@ def _test_files(rec):
 def main():
     task_dir, model = sys.argv[1], sys.argv[2]
     use_graph = "--graph" in sys.argv
+    use_oracle = "--oracle" in sys.argv
     limit = int(sys.argv[sys.argv.index("--limit") + 1]) if "--limit" in sys.argv else 30
     steps = int(sys.argv[sys.argv.index("--max-steps") + 1]) if "--max-steps" in sys.argv else 24
     out_path = sys.argv[sys.argv.index("--out") + 1] if "--out" in sys.argv else "results.jsonl"
@@ -372,14 +383,16 @@ def main():
     except FileNotFoundError:
         pass
     todo = [r for r in recs if r["instance_id"] not in done][:limit]
-    print(f"{len(todo)} tasks | model={model} graph={use_graph}", file=sys.stderr)
+    print(f"{len(todo)} tasks | model={model} graph={use_graph} "
+          f"oracle={use_oracle}", file=sys.stderr)
     fout = open(out_path, "a")
     npass = 0
     for i, r in enumerate(todo):
         res = evaluate(task_dir, model, r, use_graph, steps,
-                       out_dir=out_path)
+                       out_dir=out_path, use_oracle=use_oracle)
         res["model"] = model
         res["graph"] = use_graph
+        res["oracle"] = use_oracle
         fout.write(json.dumps(res) + "\n")
         fout.flush()
         npass += bool(res.get("passed"))
