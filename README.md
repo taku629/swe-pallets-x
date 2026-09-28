@@ -52,12 +52,15 @@ repos (verifying pytest uses the repo itself as the runner).
 
 ## Results snapshot
 
-| Model | Resolved (181-task initial release) |
+| Model | Resolved |
 |---|---|
-| Qwen2.5-Coder-7B | 4/181 (2.2%) |
-| Gemma3-4B | 1/181 (0.6%) |
-| DeepSeek-Coder-6.7B | 0/181 (harness LLM timeouts — not a capability datapoint) |
-| Qwen2.5-Coder-7B (75-task expansion sample) | 1/75 (1.3%) |
+| Qwen2.5-Coder-7B (all 476 tasks) | 5/476 (1.05%) |
+| Gemma3-4B (181-task pallets slice) | 1/181 (0.6%) |
+| DeepSeek-Coder-6.7B (181 slice) | 0/181 (harness LLM timeouts — not a capability datapoint) |
+
+Per-repo resolve (Qwen, all 476): werkzeug 3/43, jinja2 1/29, click 1/109;
+**0 resolved on pytest (132) and sympy (129)** despite 40%/32% patch-emission
+rates — the extension tasks are harder, not diluted.
 
 **Utility probes** (all 476 tasks): statement→graph-node BM25 file
 localization reaches **69% recall@5 / 76% @10** (+3–4 pts from one-hop graph
