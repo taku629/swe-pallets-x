@@ -66,7 +66,11 @@ rates — the extension tasks are harder, not diluted.
 localization reaches **69% recall@5 / 76% @10** (+3–4 pts from one-hop graph
 expansion). Full-181 graph-tools ablation: resolve 4/181→3/181 — the 7B
 agent invoked graph tools in only 7% of episodes, so the lift exists for
-programmatic retrieval but is not exploited spontaneously by small agents. A QLoRA patch-SFT probe on Qwen2.5-Coder-1.5B is an honest
+programmatic retrieval but is not exploited spontaneously by small agents.
+An oracle-file ablation (reference file list injected into the prompt)
+lifts patch emission 30.9%→43.1% (McNemar p=0.014) yet adds **zero**
+resolves — grounded patch construction, not search, is the binding
+constraint. A QLoRA patch-SFT probe on Qwen2.5-Coder-1.5B is an honest
 negative — SFT improves diff syntax but *reduces* context-line fidelity vs
 era-frozen snapshots (0.61 vs 0.72 verbatim context match), a failure mode
 the dataset makes measurable. See `paper.md` §5.2.
