@@ -1,0 +1,62 @@
+[
+ {
+  "ours": "flask_5050a18",
+  "swe_bench": "pallets__flask-4544",
+  "identical_edit_lines": true
+ },
+ {
+  "ours": "flask_fdab801",
+  "swe_bench": "pallets__flask-4575",
+  "identical_edit_lines": true
+ },
+ {
+  "ours": "flask_d7b6c1f",
+  "swe_bench": "pallets__flask-4935",
+  "identical_edit_lines": false
+ },
+ {
+  "ours": "flask_b8b4100",
+  "swe_bench": "pallets__flask-5014",
+  "identical_edit_lines": true
+ },
+ {
+  "ours": "pytest_1b196fb",
+  "swe_bench": "pytest-dev__pytest-10893",
+  "identical_edit_lines": false
+ },
+ {
+  "ours": "pytest_7eb0792",
+  "swe_bench": "pytest-dev__pytest-8447",
+  "identical_edit_lines": false
+ },
+ {
+  "ours": "pytest_88c3512",
+  "swe_bench": "pytest-dev__pytest-9624",
+  "identical_edit_lines": false
+ },
+ {
+  "ours": "sympy_d8ca423",
+  "swe_bench": "sympy__sympy-21849",
+  "identical_edit_lines": false
+ },
+ {
+  "ours": "sympy_f683020",
+  "swe_bench": "sympy__sympy-22080",
+  "identical_edit_lines": false
+ },
+ {
+  "ours": "sympy_fa59c52",
+  "swe_bench": "sympy__sympy-23413",
+  "identical_edit_lines": true
+ },
+ {
+  "ours": "sympy_f7094b7",
+  "swe_bench": "sympy__sympy-23808",
+  "identical_edit_lines": false
+ },
+ {
+  "ours": "sympy_4a32fb3",
+  "swe_bench": "sympy__sympy-24661",
+  "identical_edit_lines": false
+ }
+]

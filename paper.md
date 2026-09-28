@@ -127,6 +127,7 @@ Beyond agent resolve rates, we probe whether the packaged assets are *usable*.
 - Verification runs touched test files per task, not full-suite regression.
 - Qwen baselines now cover all 476 tasks; Gemma3/DeepSeek runs cover the 181-task pallets slice only, so cross-model resolve rates are compared on that slice.
 - Eight repos is a start, not coverage — the pipeline is the deliverable and scales by adding repos (each new repo mostly needs dependency-group discovery tuning).
+- Contamination: 12/476 tasks (2.5%) share a base commit with a SWE-bench test instance, and 4 of those carry functionally identical fix edits (flask-4544/4575/5014, sympy-23413) — published as a filterable overlap list (`swebench_overlap.json`); models trained on SWE-bench may have seen those four bug contexts.
 - Licensing: all eight upstream projects are BSD-3-Clause or MIT; frozen snapshots retain upstream LICENSE files, and derived metadata is released CC0.
 
 ## 7. Conclusion
