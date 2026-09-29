@@ -1,0 +1,3 @@
+n=476 | oracle patch 229 (48.1%) pass 4 | nograph patch 163 (34.2%) pass 5
+patch McNemar: (74, 140, 7.574421259099605e-06) | pass McNemar: (1, 0, 1.0)
+oracle-only solves: []
