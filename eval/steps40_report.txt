@@ -1,0 +1,5 @@
+n=181 | 40-step patch 48(26.5%) pass 3 | 20-step patch 56(30.9%) pass 4
+patch McNemar 20/12 p=0.215 | steps mean 23.9 vs 12.3
+s40 solves: ['click_bf1e8be', 'werkzeug_60ea32c', 'werkzeug_23142a3'] | s20 solves: ['click_bf1e8be', 'werkzeug_60ea32c', 'werkzeug_23142a3', 'werkzeug_8c129d3']
+s40-only: [] | s20-only: ['werkzeug_8c129d3']
+episodes using >20 steps: 99 of 181
